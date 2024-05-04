@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "face-api.js": "^0.22.2",
+    "node-xls": "^0.0.8",
+    "write-excel-file": "^1.4.30",
+    "xlsx-populate": "^1.21.0"
+  }
+}
