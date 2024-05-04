@@ -1,4 +1,5 @@
 body {
+    font-family: lexend, sans-serif;
     padding: 0;
     margin: 0;
     width: 100vw;
@@ -10,4 +11,17 @@ body {
 
 canvas {
     position: absolute;
+}
+.title_top{
+    position: absolute;
+    top: 5%;
+    font-weight: bold;
+    font-size: 30px;
+ left: 0;
+    right: 0;
+    
+    
+    color: black;
+    padding: 10px;
+    text-align: center;
 }

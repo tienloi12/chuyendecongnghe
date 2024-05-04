@@ -50,7 +50,31 @@ function getLabeledFaceDescriptions() {
 }
 
 
-//draw a table to write name and time  when catch face in video
+//draw a table to write name and time  when catch face in video 1 perser 1 row 
+const table = document.createElement("table");
+const thead = document.createElement("thead");
+const tbody = document.createElement("tbody");
+const tr = document.createElement("tr");
+const th1 = document.createElement("th");
+const th2 = document.createElement("th");
+const th3 = document.createElement("th");
+th1.textContent = "Name";
+th2.textContent = "Time";
+th3.textContent = "Status";
+tr.appendChild(th1);
+tr.appendChild(th2);
+tr.appendChild(th3);
+thead.appendChild(tr);
+table.appendChild(thead);
+table.appendChild(tbody);
+document.body.appendChild(table);
+table.style.border = "1px solid black";
+table.style.position = "absolute";
+table.style.top = "10%";
+table.style.left = "75%";
+table.style.width = "20%";
+table.style.padding = "10px";
+
 
 
 
@@ -61,20 +85,24 @@ video.addEventListener("play", async () => {
   if (labeledFaceDescriptors) {
         labeledFaceDescriptors.forEach((element) => {
             //add name to table
-            var table = document.createElement("table");
-            var row = table.insertRow();
-            var cell1 = row.insertCell();
-            var cell2 = row.insertCell();
-            var cell3 = row.insertCell();
-            cell1.innerHTML = element.label;
-            cell2.innerHTML = new Date().toLocaleTimeString();
-            cell3.innerHTML = new Date().toLocaleDateString();
-            document.body.appendChild(table);
-            //style table on html at the top
-            table.style.position = "absolute";
-            table.style.top = "10%";
-            table.style.left = "40%";
-            table.style.width = "30%";
+
+            const tr = document.createElement("tr");
+            const td1 = document.createElement("td");
+            const td2 = document.createElement("td");
+            const td3 = document.createElement("td");
+            td1.textContent = element.label;
+            td2.textContent = new Date().toLocaleTimeString();
+            td3.textContent = new Date().toLocaleDateString();
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            tr.appendChild(td3);
+            tbody.appendChild(tr);
+            tr.style.textAlign = "center";
+
+
+          
+          
+         
             
         });
   
