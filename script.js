@@ -31,7 +31,7 @@ function startWebcam() {
 
 
 function getLabeledFaceDescriptions() {
-  const labels = ["huy"];
+  const labels = ["huy","loi"];
   return Promise.all(
     labels.map(async (label) => {
       const descriptions = [];
@@ -70,8 +70,8 @@ table.appendChild(tbody);
 document.body.appendChild(table);
 table.style.border = "1px solid black";
 table.style.position = "absolute";
-table.style.top = "10%";
-table.style.left = "75%";
+table.style.top = "30%";
+table.style.left = "69%";
 table.style.width = "20%";
 table.style.padding = "10px";
 
