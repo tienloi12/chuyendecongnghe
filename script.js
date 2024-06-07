@@ -1,6 +1,42 @@
 
 //import write to excel file
 
+
+const users = [
+  {
+    name: "huy",
+    date : new Date().toLocaleDateString()
+
+  },
+
+  {
+    name:"lợi",
+    date : new Date().toLocaleDateString()
+  }
+]
+
+const attendances = [];
+const alreadyAttendances = [];
+if (attendances.lenght > 0){
+  attendances.forEach(element => {
+    console.log('ve')
+    const tr = document.createElement("tr");
+          const td1 = document.createElement("td");
+          const td2 = document.createElement("td");
+          const td3 = document.createElement("td");
+          td1.textContent = element.name;
+          td2.textContent = new Date().toLocaleTimeString();
+          td3.textContent = new Date().toLocaleDateString();
+          tr.appendChild(td1);
+          tr.appendChild(td2);
+          tr.appendChild(td3);
+          tbody.appendChild(tr);
+          tr.style.textAlign = "center";
+   });
+
+}
+
+
 const video = document.getElementById("video");
 
 Promise.all([
@@ -31,7 +67,7 @@ function startWebcam() {
 
 
 function getLabeledFaceDescriptions() {
-  const labels = [ "huy"]
+  const labels = ["huy","loi"];
   return Promise.all(
     labels.map(async (label) => {
       const descriptions = [];
@@ -41,7 +77,9 @@ function getLabeledFaceDescriptions() {
           .detectSingleFace(img)
           .withFaceLandmarks()
           .withFaceDescriptor();
+         
         descriptions.push(detections.descriptor);
+      
       }
       return new faceapi.LabeledFaceDescriptors(label, descriptions);
     })
@@ -70,48 +108,83 @@ table.appendChild(tbody);
 document.body.appendChild(table);
 table.style.border = "1px solid black";
 table.style.position = "absolute";
-table.style.top = "10%";
-table.style.left = "75%";
+table.style.top = "30%";
+table.style.left = "69%";
 table.style.width = "20%";
 table.style.padding = "10px";
 
+//dom button save
+const buttonSave = document.getElementById("btn")
+
+//click event
+buttonSave.addEventListener("click", () => {
+  attendances.forEach(element => {
+      //if element.name is already raw in table don't push it to table
+    if (!alreadyAttendances.includes(element.name)){
+      const tr = document.createElement("tr");
+      const td1 = document.createElement("td");
+      const td2 = document.createElement("td");
+      const td3 = document.createElement("td");
+      td1.textContent = element.name;
+      td2.textContent = new Date().toLocaleTimeString();
+      td3.textContent = new Date().toLocaleDateString();
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      tr.appendChild(td3);
+      tbody.appendChild(tr);
+      tr.style.textAlign = "center";
+      alreadyAttendances.push(element.name);
+    }
+    else{
+      alert(`${element.name} has already been saved`);
+    }
+
+
+
+
+      // Gửi dữ liệu xuống server
+      const data = {
+        users:attendances,
+        workSheetName: `Attendance_${new Date().toLocaleDateString().split('/').join('-')}`,
+        
+        filePath: `../../Attendance_${new Date().toLocaleDateString().split('/').join('-')}.xlsx`,
+        workSheetColumnName: [
+         
+          "Name",
+          "Date"
+        ]
+        
+      }
+      const jsonData = JSON.stringify(data);
+      fetch('http://localhost:3000/excel/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: jsonData
+    })
+      .then(response => response.text()) // Change to .text() to handle boolean response
+      .then(data => {
+        if (data === 'true') {
+          alert('Excel file created successfully.');
+        } else {
+          alert('Failed to create Excel file.');
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
+      console.log(attendances);
+    })
+});
 
 
 
 
 video.addEventListener("play", async () => {
   const labeledFaceDescriptors = await getLabeledFaceDescriptions();
-  console.log(labeledFaceDescriptors);
-  if (labeledFaceDescriptors) {
-        labeledFaceDescriptors.forEach((element) => {
-            //add name to table
-
-            const tr = document.createElement("tr");
-            const td1 = document.createElement("td");
-            const td2 = document.createElement("td");
-            const td3 = document.createElement("td");
-            td1.textContent = element.label;
-            td2.textContent = new Date().toLocaleTimeString();
-            td3.textContent = new Date().toLocaleDateString();
-            tr.appendChild(td1);
-            tr.appendChild(td2);
-            tr.appendChild(td3);
-            tbody.appendChild(tr);
-            tr.style.textAlign = "center";
-
-
-          
-          
-         
-            
-        });
-  
-
-
-   
-
-  }
   const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors);
+  
 
   const canvas = faceapi.createCanvasFromMedia(video);
   document.body.append(canvas);
@@ -127,17 +200,35 @@ video.addEventListener("play", async () => {
 
     const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
-    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
 
+    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+    
     const results = resizedDetections.map((d) => {
       return faceMatcher.findBestMatch(d.descriptor);
     });
+  
+    
     results.forEach((result, i) => {
       const box = resizedDetections[i].detection.box;
       const drawBox = new faceapi.draw.DrawBox(box, {
         label: result,
       });
+      const foundUser = users.find(user => user.name === result.label);
+      if (foundUser) {
+        if(!attendances.includes(foundUser)){
+          attendances.push(foundUser);
+          
+        }
+        
+      }
+
+      // check if id in array resultface don't push it to array 
       drawBox.draw(canvas);
     });
   }, 100);
 });
+
+
+  
+
+

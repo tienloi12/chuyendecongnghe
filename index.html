@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,13 +10,61 @@
   <script defer src="script.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.zahl.js"></script>
-  
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.full.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <span class="title_top">Face detection attendence</span>
-  <video id="video" width="600" height="450" autoplay>
-   
+  <div class="container">
+    <div class="title">
+      <span class="title_top">FACE DETECTION ATTENDANCE</span>
+    </div>
+    <div class="main">
+      <div class="main_left">
+        <div class="video-container">
+          <video id="video" width="600" height="450" autoplay></video>
+        </div>
+        <div class="selected">
+          <div class="select">
+            <span>Class</span>
+            <select id="select_item">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </div>
+          <div class="select">
+            <span>Time</span>
+            <select id="select_item">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </div>
+        </div>
+        <div class="notification">
+          <span id="notification_content">You have successfully taken attendance</span>
+          <span id="notification_content">Failed to take attendance</span>
+        </div>
+      </div>
+  
+    <div class="main_right">
+      <div class="list">
+        <div class="list_title">
+          <span>Attendance List</span>
+        </div>
+        <div class="list_content">
+          
+        </div>
+        <div class="list_button">
+          <button id="btn">Save</button>
+          <button id="btn1">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
+
 </html>
