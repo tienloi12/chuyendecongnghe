@@ -4,6 +4,5 @@ export class CreateExcelDto {
         public workSheetColumnName: [],
         public workSheetName: string,
         public filePath: string,
-
     ){}
 }

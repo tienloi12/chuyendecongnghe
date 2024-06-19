@@ -37,7 +37,7 @@ export class ExcelService {
 }
   exportUsersToExcel = (users, workSheetColumnNames, workSheetName, filePath) => {
     const data = users.map(user => {
-        return [user.id, user.name, user.age];
+        return [user.mssv, user.name, user.date, user.class, user.session];
     });
     return this.exportExcel(data, workSheetColumnNames, workSheetName, filePath);
 }

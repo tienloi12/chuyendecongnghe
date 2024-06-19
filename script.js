@@ -1,53 +1,45 @@
-
-//import write to excel file
-
-
 const users = [
-  {
-    name: "huy",
-    date : new Date().toLocaleDateString()
+  { mssv: "12345", id: "huy",name:"Tran Thanh Huy", date: new Date().toLocaleDateString(), class: "",
+    session: "" },
+  { mssv: "67890", id: "loi",name:"Vu Tien Loi", date: new Date().toLocaleDateString(), class: "",
+    session: "" }
+];
 
-  },
-
-  {
-    name:"lợi",
-    date : new Date().toLocaleDateString()
-  }
-]
-
-const attendances = [];
-const alreadyAttendances = [];
-if (attendances.lenght > 0){
-  attendances.forEach(element => {
-    console.log('ve')
-    const tr = document.createElement("tr");
-          const td1 = document.createElement("td");
-          const td2 = document.createElement("td");
-          const td3 = document.createElement("td");
-          td1.textContent = element.name;
-          td2.textContent = new Date().toLocaleTimeString();
-          td3.textContent = new Date().toLocaleDateString();
-          tr.appendChild(td1);
-          tr.appendChild(td2);
-          tr.appendChild(td3);
-          tbody.appendChild(tr);
-          tr.style.textAlign = "center";
-   });
-
-}
-
+let attendances = [];
+let alreadyAttendances = [];
+let selectedClass = null;
+let selectedSession = null;
 
 const video = document.getElementById("video");
-
+const attendanceTable = document.getElementById("attendance_table");
+const attendanceBody = document.getElementById("attendance_body");
+const selectItem = document.getElementById("select_item");
+const buttonSave = document.getElementById("save_btn");
+const buttonReset = document.getElementById("reset_btn");
+document.getElementById('cameraDiv').style.display = 'none';
 Promise.all([
-    faceapi.nets.ssdMobilenetv1.loadFromUri("/models"),
-    faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
-    faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
-    faceapi.nets.faceExpressionNet.loadFromUri("/models"),
-    faceapi.nets.ageGenderNet.loadFromUri("/models"),
-]).then(startWebcam);
+  faceapi.nets.ssdMobilenetv1.loadFromUri("/models"),
+  faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
+  faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+  faceapi.nets.faceExpressionNet.loadFromUri("/models"),
+  faceapi.nets.ageGenderNet.loadFromUri("/models"),
+]).then();
+
+function setSession(session, buttonId) {
+  selectedClass = selectItem.value;
+  selectedSession = session;
+  // Lấy tất cả các nút trong div select_time
+  const buttons = document.querySelectorAll('.select_time .btn');
+  // Loại bỏ lớp active từ tất cả các nút
+  buttons.forEach(button => {
+      button.classList.remove('active');
+  });
+  // Thêm lớp active cho nút được chọn
+  document.getElementById(buttonId).classList.add('active');
+}
 
 function startWebcam() {
+  document.getElementById('cameraDiv').style.display = 'initial';
   navigator.mediaDevices
     .getUserMedia({
       video: true,
@@ -60,80 +52,149 @@ function startWebcam() {
       console.error(error);
     });
 }
+function stopWebcam() {
+  const stream = video.srcObject;
+  const tracks = stream.getTracks();
 
-//how to extract to excel file when catch face in video in the label
+  tracks.forEach(function (track) {
+    track.stop();
+  });
 
-
-
+  video.srcObject = null;
+  const canvas = document.getElementById("myCanvas");
+  // Remove the canvas by ID
+  canvas.remove();
+  console.log(attendances);
+  const jsonDataToSaveSesionStorage = JSON.stringify(attendances);
+  // Lưu chuỗi JSON vào sessionStorage
+  sessionStorage.setItem('attendances', jsonDataToSaveSesionStorage);
+  document.getElementById('cameraDiv').style.display = 'none';
+}
 
 function getLabeledFaceDescriptions() {
-  const labels = ["huy","loi"];
+  const labels = ["huy", "loi"];
   return Promise.all(
     labels.map(async (label) => {
       const descriptions = [];
-      for (let i = 1; i <= 2; i++) {
+      for (let i = 1; i <= label.length; i++) {
         const img = await faceapi.fetchImage(`./labels/${label}/${i}.jpg`);
         const detections = await faceapi
           .detectSingleFace(img)
           .withFaceLandmarks()
           .withFaceDescriptor();
-         
         descriptions.push(detections.descriptor);
-      
       }
       return new faceapi.LabeledFaceDescriptors(label, descriptions);
     })
-    
   );
 }
 
+video.addEventListener("play", async () => {
+  const labeledFaceDescriptors = await getLabeledFaceDescriptions();
+  const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors);
 
-//draw a table to write name and time  when catch face in video 1 perser 1 row 
-const table = document.createElement("table");
-const thead = document.createElement("thead");
-const tbody = document.createElement("tbody");
-const tr = document.createElement("tr");
-const th1 = document.createElement("th");
-const th2 = document.createElement("th");
-const th3 = document.createElement("th");
-th1.textContent = "Name";
-th2.textContent = "Time";
-th3.textContent = "Status";
-tr.appendChild(th1);
-tr.appendChild(th2);
-tr.appendChild(th3);
-thead.appendChild(tr);
-table.appendChild(thead);
-table.appendChild(tbody);
-document.body.appendChild(table);
-table.style.border = "1px solid black";
-table.style.position = "absolute";
-table.style.top = "30%";
-table.style.left = "69%";
-table.style.width = "20%";
-table.style.padding = "10px";
+  const canvas = faceapi.createCanvasFromMedia(video);
+  canvas.id = 'myCanvas'; // Assign the ID 'myCanvas'
+  document.body.append(canvas);
 
-//dom button save
-const buttonSave = document.getElementById("btn")
+  const displaySize = { width: video.width, height: video.height };
+  faceapi.matchDimensions(canvas, displaySize);
 
-//click event
+  setInterval(async () => {
+    const detections = await faceapi
+      .detectAllFaces(video)
+      .withFaceLandmarks()
+      .withFaceDescriptors();
+
+    const resizedDetections = faceapi.resizeResults(detections, displaySize);
+
+    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+
+    const results = resizedDetections.map((d) => {
+      return faceMatcher.findBestMatch(d.descriptor);
+    });
+
+    results.forEach((result, i) => {
+      const box = resizedDetections[i].detection.box;
+      const drawBox = new faceapi.draw.DrawBox(box, {
+        label: result.toString(),
+      });
+
+      const foundUser = users.find(user => user.id === result.label);
+      if (foundUser) {
+        if (!alreadyAttendances.includes(foundUser.id)) {
+          attendances.push({
+            ...foundUser,
+            mssv: foundUser.mssv,
+            name: foundUser.name,
+            date: new Date().toLocaleDateString(),
+            class: selectedClass,
+            session: selectedSession,
+          });
+          alreadyAttendances.push(foundUser.id);
+          addAttendanceToTable(foundUser);
+        }
+      }
+      drawBox.draw(canvas);
+    });
+  }, 100);
+});
+
+function addAttendanceToTable(user) {
+  const tr = document.createElement("tr");
+  const td1 = document.createElement("td");
+  const td2 = document.createElement("td");
+  const td3 = document.createElement("td");
+  const td4 = document.createElement("td");
+  const td5 = document.createElement("td");
+
+  td1.textContent = user.mssv;
+  td2.textContent = user.name;
+  td3.textContent = new Date().toLocaleDateString();
+  td4.textContent = selectedClass;
+  td5.textContent = selectedSession;
+
+  tr.appendChild(td1);
+  tr.appendChild(td2);
+  tr.appendChild(td3);
+  tr.appendChild(td4);
+  tr.appendChild(td5);
+  attendanceBody.appendChild(tr);
+  tr.style.textAlign = "center";
+}
+
+
 buttonSave.addEventListener("click", () => {
   attendances.forEach(element => {
       //if element.name is already raw in table don't push it to table
-    if (!alreadyAttendances.includes(element.name)){
+    if (!alreadyAttendances.includes(element.id)){
       const tr = document.createElement("tr");
       const td1 = document.createElement("td");
       const td2 = document.createElement("td");
       const td3 = document.createElement("td");
-      td1.textContent = element.name;
-      td2.textContent = new Date().toLocaleTimeString();
+      const td4 = document.createElement("td");
+      const td5 = document.createElement("td");
+      td1.textContent = element.mssv;
+      td2.textContent = element.name;
       td3.textContent = new Date().toLocaleDateString();
+      td4.textContent = selectedClass;
+      td5.textContent = selectedSession;
       tr.appendChild(td1);
       tr.appendChild(td2);
       tr.appendChild(td3);
+      tr.appendChild(td4);
+      tr.appendChild(td5);
       tbody.appendChild(tr);
+
+
       tr.style.textAlign = "center";
+
+      alreadyAttendances.push(element.mssv);
       alreadyAttendances.push(element.name);
+      alreadyAttendances.push(element.date);
+      alreadyAttendances.push(element.class);
+      alreadyAttendances.push(element.session);
+
     }
     else{
       alert(`${element.name} has already been saved`);
@@ -143,15 +204,18 @@ buttonSave.addEventListener("click", () => {
 
 
       // Gửi dữ liệu xuống server
+
       const data = {
         users:attendances,
-        workSheetName: `Attendance_${new Date().toLocaleDateString().split('/').join('-')}`,
+        workSheetName: `Attendance_ ${new Date().toLocaleDateString().split('/').join('-')}`,
         
         filePath: `../../Attendance_${new Date().toLocaleDateString().split('/').join('-')}.xlsx`,
         workSheetColumnName: [
-         
+          "MSSV",
           "Name",
-          "Date"
+          "Date",
+          "Class",
+          "Session"
         ]
         
       }
@@ -178,57 +242,12 @@ buttonSave.addEventListener("click", () => {
     })
 });
 
-
-
-
-video.addEventListener("play", async () => {
-  const labeledFaceDescriptors = await getLabeledFaceDescriptions();
-  const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors);
-  
-
-  const canvas = faceapi.createCanvasFromMedia(video);
-  document.body.append(canvas);
-
-  const displaySize = { width: video.width, height: video.height };
-  faceapi.matchDimensions(canvas, displaySize);
-
-  setInterval(async () => {
-    const detections = await faceapi
-      .detectAllFaces(video)
-      .withFaceLandmarks()
-      .withFaceDescriptors();
-
-    const resizedDetections = faceapi.resizeResults(detections, displaySize);
-
-
-    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
-    
-    const results = resizedDetections.map((d) => {
-      return faceMatcher.findBestMatch(d.descriptor);
-    });
-  
-    
-    results.forEach((result, i) => {
-      const box = resizedDetections[i].detection.box;
-      const drawBox = new faceapi.draw.DrawBox(box, {
-        label: result,
-      });
-      const foundUser = users.find(user => user.name === result.label);
-      if (foundUser) {
-        if(!attendances.includes(foundUser)){
-          attendances.push(foundUser);
-          
-        }
-        
-      }
-
-      // check if id in array resultface don't push it to array 
-      drawBox.draw(canvas);
-    });
-  }, 100);
+buttonReset.addEventListener("click", () => {
+  // Xóa tất cả các hàng trong bảng điểm danh
+  while (attendanceBody.firstChild) {
+    attendanceBody.removeChild(attendanceBody.firstChild);
+  }
+  // Đặt lại các mảng điểm danh
+  attendances = [];
+  alreadyAttendances = [];
 });
-
-
-  
-
-

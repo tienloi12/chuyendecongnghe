@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Thành huy</title>
+  <title>FACE DETECTION ATTENDANCE</title>
   <script defer src="face-api.min.js"></script>
   <script defer src="script.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
@@ -22,49 +22,85 @@
     </div>
     <div class="main">
       <div class="main_left">
-        <div class="video-container">
-          <video id="video" width="600" height="450" autoplay></video>
+        <div class="video_container">
+          <div id="cameraDiv">
+            <video id="video" width="600" height="450" autoplay></video>
+          </div>
         </div>
+
         <div class="selected">
           <div class="select">
             <span>Class</span>
             <select id="select_item">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
+              <option value="1"> Class 1</option>
+              <option value="2"> Class 2</option>
+              <option value="3"> Class 3</option>
             </select>
           </div>
-          <div class="select">
-            <span>Time</span>
-            <select id="select_item">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-          </div>
-        </div>
-        <div class="notification">
-          <span id="notification_content">You have successfully taken attendance</span>
-          <span id="notification_content">Failed to take attendance</span>
         </div>
       </div>
-  
-    <div class="main_right">
-      <div class="list">
-        <div class="list_title">
-          <span>Attendance List</span>
-        </div>
-        <div class="list_content">
-          
-        </div>
-        <div class="list_button">
-          <button id="btn">Save</button>
-          <button id="btn1">Reset</button>
+
+      <div class="main_right">
+        <div class="list">
+          <div class="list_title">
+            <span>Attendance List</span>
+          </div>
+          <div class="list_content">
+            <table id="attendance_table" style="border: 1px solid black; width: 100%;">
+              <thead>
+                <tr>
+                  <th>MSSV</th>
+                  <th>Name</th>
+                  <th>Date</th>
+                  <th>Class</th>
+                  <th>Session</th>
+                </tr>
+              </thead>
+              <tbody id="attendance_body"></tbody>
+            </table>
+          </div>
+          <div class="select_time">
+            <button class="btn btn-warning" id="session1" onclick="setSession('Session 1', 'session1')">Session
+              1</button>
+            <button class="btn btn-warning" id="session2" onclick="setSession('Session 2', 'session2')">Session
+              2</button>
+            <button class="btn btn-warning" id="session3" onclick="setSession('Session 3', 'session3')">Session
+              3</button>
+            <button class="btn btn-warning" id="session4" onclick="setSession('Session 4', 'session4')">Session
+              4</button>
+            <button class="btn btn-warning" id="session5" onclick="setSession('Session 5', 'session5')">Session
+              5</button>
+            <button class="btn btn-warning" id="session6" onclick="setSession('Session 6', 'session6')">Session
+              6</button>
+            <button class="btn btn-warning" id="session7" onclick="setSession('Session 7', 'session7')">Session
+              7</button>
+            <button class="btn btn-warning" id="session8" onclick="setSession('Session 8', 'session8')">Session
+              8</button>
+            <button class="btn btn-warning" id="session9" onclick="setSession('Session 9', 'session9')">Session
+              9</button>
+            <button class="btn btn-warning" id="session10" onclick="setSession('Session 10', 'session10')">Session
+              10</button>
+            <button class="btn btn-warning" id="session11" onclick="setSession('Session 11', 'session11')">Session
+              11</button>
+            <button class="btn btn-warning" id="session12" onclick="setSession('Session 12', 'session12')">Session
+              12</button>
+            <button class="btn btn-warning" id="session13" onclick="setSession('Session 13', 'session13')">Session
+              13</button>
+            <button class="btn btn-warning" id="session14" onclick="setSession('Session 14', 'session14')">Session
+              14</button>
+            <button class="btn btn-warning" id="session15" onclick="setSession('Session 15', 'session15')">Session
+              15</button>
+          </div>
+          <div class="list_button">
+            <button onclick="startWebcam()" class="btn btn-warning w-100" class="button">Start</button>
+            <button class="btn btn-warning w-100" id="save_btn">Save</button>
+            <button class="btn btn-warning w-100" id="reset_btn">Reset</button>
+            <button onclick="stopWebcam()" class="btn btn-warning w-100">End</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 </body>
 
 </html>
